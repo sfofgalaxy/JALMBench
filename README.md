@@ -84,7 +84,10 @@ pip install -r requirements.txt
 
 Make sure you have git-lfs installed (https://git-lfs.com)
 
-
+Firstly, you may create a folder to restore these models. For example:
+```bash
+mkdir cached_models/
+```
 
 ### 💬 SpeechGPT
 ```bash
@@ -148,7 +151,6 @@ mkdir cached_models/
 cd cached_models/
 git clone https://huggingface.co/VITA-MLLM/Freeze-Omni
 ```
-
 
 ### 🧠 VITA & ⚡ VITA-1.5
 ```bash
