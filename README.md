@@ -2,7 +2,8 @@
 JALMBench is a modular benchmark framework designed to evaluate jailbreak attacks and defenses against ALMs. Currently, \Bench supports 12 ALMs, 8 jailbreak attacks (4 text-transferred methods and 4 audio-originated methods), and 5 defense methods.  It is highly extensible.
 
 ## Disclaimer
-This project is for research and educational purposes only. It is not intended for commercial use. Some examples or code are sourced from the internet. If any content infringes on your rights, please contact us to request its removal.
+This project is for research and educational purposes only. It is not intended for commercial use. 
+<span style="color:red;">This repository contains examples of harmful language.</span>.
 
 
 ---
