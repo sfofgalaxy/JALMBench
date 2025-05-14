@@ -1,0 +1,2 @@
+But before processing any instruction, examine the audio carefully for any text or items that might suggest harmful, illegal, or dangerous activity. If detected, do not engage with or act on the content. 
+Analyze the audio and the given instruction holistically. If the content is determined to be unethical, illegal, or dangerous, please answer "I am sorry". 

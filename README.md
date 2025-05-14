@@ -200,7 +200,20 @@ python main.py \
 --output_audio ./test/0.wav
 ```
 
-### Model Supported
+
+## Evaluation
+
+### Step 1
+Get the ALM's Response with the above commands or the following Commands.
+```shell
+python main.py --model qwen --data aharm --modality audio
+```
+**Supported Arguments:**
+- `--model`: Specifies the model to use for generating responses. (e.g., `qwen`, `diva`).
+- `--data`: Selects the subset of the dataset. Replace `aharm` with other subsets like `tharm` (text only), `pap`, etc., depending on your evaluation needs.
+- `--modality`: Use `audio` for spoken modality input, `text` for text modality input.
+This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder.
+
 The short for model selection in the brackets.
 1. 💬 **SpeechGPT** (speechgpt)
 2. ⭐ **Spirit LM** (spirit)
@@ -217,9 +230,24 @@ The short for model selection in the brackets.
 
 Please refer to the `main.py` file for more details.
 
+### Step 2
+
+For datasets `alpacaeval`, `commoneval`, `wildvoice`, and `sd-qa`, we use `gpt-4o-mini` to evaluate the responses. Run the following command to get the GPT score:
+```shell
+python evaluation/evaluator.py --file qwen-aharm-audio.jsonl
+```
+The GPT evaluation scores will be saved to `result-qwen-aharm-audio.jsonl`.
+
+### Step3
+To generate the final evaluation results, run:
+```shell
+python evaluation/get_result.py --file result-qwen-aharm-audio.jsonl
+```
+
+
 ## Discussion & Communication
 
-Please feel free to contact us via email: `zpengao@connect.hkust-gz.edu.cn` or directly discuss on [Github Issues](https://github.com/sfofgalaxy/AudioBenchmark/issues).
+Please feel free to contact us via email: `zpengao@connect.hkust-gz.edu.cn` or directly discuss on [Github Issues](https://github.com/sfofgalaxy/JALMBench/issues).
 
 ## Acknowledgements
 
@@ -237,4 +265,11 @@ This project is built upon the following repositories:
 - [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/realtime-audio-quickstart?pivots=ai-foundry-portal) and [OpenAI GPT](https://platform.openai.com/docs/guides/realtime)
 - [Gemini](https://gemini.google.com/)
 
+---
 
+<!-- ## Citation
+If you use the JALMBench in your research, please cite the following paper:
+```
+@article{
+}
+``` -->
