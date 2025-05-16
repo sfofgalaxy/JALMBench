@@ -208,20 +208,6 @@ python process_single.py \
 - `--output_text`: The output text path.
 - `--output_audio`: The output audio path (if applicable).
 
-
-## Evaluation
-The following steps are used to evaluate the datasets in our paper, which can be accessed from this [link](https://huggingface.co/datasets/AnonymousUser000/JALMBench).
-
-### Step 1
-Get the ALM's Response with the above commands or the following Commands.
-```shell
-python main.py --model qwen --data aharm --modality audio
-```
-**Supported Arguments:**
-- `--model`: Specifies the model to use for generating responses. (e.g., `qwen`, `diva`).
-- `--data`: Selects the subset of the dataset. Replace `aharm` with other subsets like `tharm` (text only), `pap`, etc., depending on your evaluation needs.
-- `--modality`: Use `audio` for spoken modality input, `text` for text modality input.
-This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder.
 The short for model selection in the brackets.
 1. 💬 **SpeechGPT** (speechgpt)
 2. ⭐ **Spirit LM** (spirit)
@@ -236,7 +222,23 @@ The short for model selection in the brackets.
 11. 🤖 **OpenAI GPT** (gpt)
 12. 🌟 **Gemini-2.0-Flash** (gemini)
 
-Please refer to the `main.py` file for more details.
+
+## Evaluation
+The following steps are used to evaluate the datasets in our paper, which can be accessed from this [link](https://huggingface.co/datasets/AnonymousUser000/JALMBench).
+
+### Step 1
+Get the ALM's Response with the above commands or the following Commands.
+```shell
+python main.py --model qwen --data aharm --modality audio
+```
+**Supported Arguments:**
+- `--model`: Specifies the model to use for generating responses. (e.g., `qwen`, `diva`).
+- `--data`: Selects the subset of the dataset. Replace `aharm` with other subsets like `tharm` (text only), `pap`, etc., depending on your evaluation needs.
+- `--modality`: Use `audio` for spoken modality input, `text` for text modality input.
+This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder.
+- `--defense`: Defense methods used, default: None (i.e. no defense). (e.g., `AdaShield`, `LLaMAGuard`)
+
+Please refer to `main.py` for more details.
 
 ### Step 2
 

@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('--modality', type=str, required=True, choices=['audio', 'text'], help='input modality: audio or text')
     parser.add_argument('--output_dir', type=str, default='.', help='output directory')
     parser.add_argument('--prompt', type=str, default=None, help='optional prompt')
-    parser.add_argument('--defense', type=str, choices=['JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'], 
+    parser.add_argument('--defense', type=str, default=None, choices=['JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'], 
                       help='defense method to use')
     return parser.parse_args()
 
