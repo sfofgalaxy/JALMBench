@@ -76,7 +76,7 @@ class FreezeOmni(AudioLM):
         self.tts = llm2TTS(self.model_path)
         self.audio_processor = audioEncoderProcessor()
 
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         """Process audio file and return text response"""
         # Read audio file
         if audio_path is None:
@@ -95,7 +95,7 @@ class FreezeOmni(AudioLM):
         chunk_size = self.audio_processor.get_chunk_size()
         
         # Stage0: Preprocessing
-        outputs = self.pipeline.speech_dialogue(None, stat='pre', role=prompt if prompt else "You are a helpful assistant.")
+        outputs = self.pipeline.speech_dialogue(None, stat='pre', role="You are a helpful assistant. " + ((addtional_system_prompt + "\n") if addtional_system_prompt else "") + (prompt if prompt else ""))
         
         # Stage1: Process audio
         wav_input = torch.zeros(math.ceil(wav.shape[0] / chunk_size) * chunk_size)

@@ -22,7 +22,7 @@ class GPT(AudioLM):
             azure_endpoint=self.endpoint
         )
 
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         # Read and encode audio file
         content = []
         if prompt is None and audio_path is None:
@@ -50,17 +50,30 @@ class GPT(AudioLM):
             })
 
         output_audio_path = kwargs.get("output_audio_path", None)
+        if addtional_system_prompt:
+            messages = [
+                {
+                    "role": "system",
+                    "content": addtional_system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": content
+                }
+            ]
+        else:
+            messages = [
+                {
+                    "role": "user",
+                    "content": content
+                }
+            ]
         if output_audio_path:
             completion = self.client.chat.completions.create( 
                 model=self.deployment, 
                 modalities=["text", "audio"],
                 audio={"voice": "alloy", "format": "wav"},
-                messages=[ 
-                    { 
-                        "role": "user", 
-                        "content": content
-                    }
-                ],
+                messages=messages,
                 temperature=self.temperature,
                 top_p=self.top_p
             )
@@ -72,12 +85,7 @@ class GPT(AudioLM):
             completion = self.client.chat.completions.create( 
                 model=self.deployment, 
                 modalities=["text"],
-                messages=[ 
-                    { 
-                        "role": "user", 
-                        "content": content
-                    }
-                ],
+                messages=messages,
                 temperature=self.temperature,
                 top_p=self.top_p
             )

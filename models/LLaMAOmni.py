@@ -58,7 +58,7 @@ class LLaMAOmni(AudioLM):
         self.predictor = Predictor()
         self.predictor.setup(self.model_cache, self.vocoder_path)
     
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         if audio_path == None:
@@ -71,7 +71,7 @@ class LLaMAOmni(AudioLM):
 
         output = self.predictor.predict(
             input_audio=audio_path,
-            prompt=prompt,
+            prompt=(addtional_system_prompt + "\n" if addtional_system_prompt else "") + prompt,
             temperature=self.temperature,
             top_p=self.top_p,
             max_new_tokens=self.max_new_tokens,

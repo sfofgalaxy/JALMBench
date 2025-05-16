@@ -86,18 +86,21 @@ class SpeechGPT(AudioLM):
             vocoder_cfg = json.load(f)
         self.vocoder = CodeHiFiGANVocoder(vocoder_path, vocoder_cfg).to(self.device)
 
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         
         with torch.no_grad():
             # Preprocess
             if audio_path and prompt:
-                preprocessed_prompts = [self._preprocess(audio_path), self._preprocess(prompt)]
+                preprocessed_prompts = [self._preprocess(audio_path), self._preprocess(((addtional_system_prompt + "\n") if addtional_system_prompt else "") + prompt)]
             elif audio_path:
-                preprocessed_prompts = [self._preprocess(audio_path)]
+                if addtional_system_prompt:
+                    preprocessed_prompts = [self._preprocess(audio_path), self._preprocess(addtional_system_prompt)]
+                else:
+                    preprocessed_prompts = [self._preprocess(audio_path)]
             else:
-                preprocessed_prompts = [self._preprocess(prompt)]
+                preprocessed_prompts = [self._preprocess(((addtional_system_prompt + "\n") if addtional_system_prompt else "") + prompt)]
             input_ids = self.tokenizer(preprocessed_prompts, return_tensors="pt", padding=True).input_ids
             input_ids = input_ids.to(self.device)
 

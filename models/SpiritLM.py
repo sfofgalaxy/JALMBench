@@ -18,10 +18,15 @@ class SpiritLM(AudioLM):
     def load_model(self):
         self.model = Spiritlm(self.model_name, self.model_path, self.speech_encoder_path)
 
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         inputs = []
+        if addtional_system_prompt:
+            inputs.append(GenerationInput(
+                    content=addtional_system_prompt,
+                    content_type=ContentType.TEXT,
+                ))
         if audio_path:
             inputs.append(GenerationInput(
                         content=audio_path,

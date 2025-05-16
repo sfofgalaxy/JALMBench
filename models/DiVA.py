@@ -32,13 +32,19 @@ class DiVA(AudioLM):
         self.model.config.top_p = self.top_p
         self.model.config.num_beams = self.num_beams
     
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         if not audio_path and prompt:
-            responses = self.model.generate([0], [prompt], max_new_tokens=self.max_new_tokens)
-        elif prompt:
+            raise ValueError("Either audio_path or prompt must be provided")
+        
+        if not audio_path and prompt:
+            responses = self.model.generate([0], [((addtional_system_prompt + "\n") if addtional_system_prompt else "") +  prompt], max_new_tokens=self.max_new_tokens)
+        elif audio_path and prompt:
             speech_data, _ = librosa.load(audio_path, sr=16_000)
-            responses = self.model.generate([speech_data], [prompt], max_new_tokens=self.max_new_tokens)
-        else:
+            responses = self.model.generate([speech_data], [((addtional_system_prompt + "\n") if addtional_system_prompt else "") +  prompt], max_new_tokens=self.max_new_tokens)
+        elif audio_path and not prompt:
             speech_data, _ = librosa.load(audio_path, sr=16_000)
-            responses = self.model.generate([speech_data], max_new_tokens=self.max_new_tokens)
+            if addtional_system_prompt:
+                responses = self.model.generate([speech_data], [addtional_system_prompt], max_new_tokens=self.max_new_tokens)
+            else:
+                responses = self.model.generate([speech_data], max_new_tokens=self.max_new_tokens)
         return responses[0]

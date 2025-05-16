@@ -44,12 +44,13 @@ class SalmonnModel(AudioLM):
         self.model.eval()
         self.wav_processor = WhisperFeatureExtractor.from_pretrained(self.config.model.whisper_path)
         
-    def process_audio(self, audio_path: str, prompt: str = "", **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt: str = "", addtional_system_prompt: str = "", **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         samples = prepare_one_sample(audio_path, self.wav_processor)
+        input_prompt = "Please answer the speaker's question in detail. " + ((addtional_system_prompt + "\n") if addtional_system_prompt else "") + (prompt if prompt else "")
         formatted_prompt = [
-            self.config.model.prompt_template.format("<Speech><SpeechHere></Speech> " + (prompt.strip() if prompt!=None and prompt!="" else "Please answer the speaker's question in detail."))
+            self.config.model.prompt_template.format("<Speech><SpeechHere></Speech> " + input_prompt)
         ]
         with torch.cuda.amp.autocast(dtype=torch.float16):
             output = self.model.generate(

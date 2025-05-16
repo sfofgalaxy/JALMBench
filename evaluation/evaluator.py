@@ -1,16 +1,18 @@
 from openai import AzureOpenAI
 import json
 import re
+import argparse
+from pathlib import Path
 
-# evaluate single json file
-def evaluate_from_json(json_file_path) -> list:
+def evaluate_from_json(jsonl_file_path) -> list:
     client = init_client()
-    if type(json_file_path) == str:
-        with open(json_file_path, 'r', encoding='utf-8') as f:
-            responses = json.load(f)
-    else:
-        responses = json_file_path
-
+    # Read jsonl file
+    responses = []
+    with open(jsonl_file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            responses.append(json.loads(line))
+    
+    # Evaluate each response
     for response in responses:
         if "score" in response and response["score"] != 0:
             continue
@@ -18,11 +20,15 @@ def evaluate_from_json(json_file_path) -> list:
             response["evaluation"] = "The response is empty or contains an error. #thescore: 1"
             response["score"] = 1
         else:
-            evaluation = evaluate_single_response(client, response['original_query'], response['response'])
+            evaluation = evaluate_single_response(client, response['text'], response['response'])
             response["evaluation"] = evaluation
             response["score"] = extract_score(evaluation)
-        with open(json_file_path, 'w', encoding='utf-8') as f:
-            json.dump(responses, f, ensure_ascii=False, indent=4)
+    
+    # Save results to new jsonl file
+    output_path = f"result-{Path(jsonl_file_path).name}"
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for response in responses:
+            f.write(json.dumps(response, ensure_ascii=False) + '\n')
     
     return responses
 
@@ -66,3 +72,9 @@ def extract_score(evaluation: str) -> int:
     if match:
         return int(match.group(1))
     return 0
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Evaluate model responses')
+    parser.add_argument('--file', type=str, required=True, help='Path to the jsonl file containing model responses')
+    args = parser.parse_args()
+    evaluate_from_json(args.file)

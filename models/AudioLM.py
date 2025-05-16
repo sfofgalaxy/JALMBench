@@ -27,7 +27,7 @@ class AudioLM(ABC):
         pass
     
     @abstractmethod
-    def process_audio(self, audio_path: str, prompt=None, **process_kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **process_kwargs) -> str:
         """
         Abstract method to process audio
         
@@ -39,7 +39,7 @@ class AudioLM(ABC):
         """
         pass
 
-    def process_text(self, text: str, tts_model="google_api", prompt=None, cache_path=None, **process_kwargs) -> str:
+    def process_text(self, text: str, tts_model="google_api", prompt=None, addtional_system_prompt=None, cache_path=None, **process_kwargs) -> str:
         """
         Abstract method to process audio
         
@@ -54,7 +54,7 @@ class AudioLM(ABC):
             str: Processing result
         """
         if cache_path != None and os.path.exists(cache_path):
-            result = self.process_audio(cache_path, prompt=prompt, **process_kwargs)
+            result = self.process_audio(cache_path, prompt=prompt, addtional_system_prompt=addtional_system_prompt, **process_kwargs)
         else:
             if cache_path == None:
                 os.makedirs("./temp", exist_ok=True)
@@ -67,6 +67,6 @@ class AudioLM(ABC):
                 pipe = pipeline("text-to-speech", model=tts_model, device=self.device)
                 audio_data = pipe(text)
                 sf.write(path, audio_data["audio"].squeeze(), audio_data["sampling_rate"])
-            result = self.process_audio(path, prompt=prompt, **process_kwargs)
+            result = self.process_audio(path, prompt=prompt, addtional_system_prompt=addtional_system_prompt, **process_kwargs)
         return result
         

@@ -15,7 +15,7 @@ class Qwen(AudioLM):
             device_map=self.device
         )
     
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         content = []
@@ -23,11 +23,17 @@ class Qwen(AudioLM):
             content.append({"type": "audio", "audio_url": audio_path})
         if prompt:
             content.append({"type": "text", "text": prompt})
-        
-        conversation = [{
+        if addtional_system_prompt:
+            conversation = [{
+                "role": "system", 
+                "content": addtional_system_prompt
+            }]
+        else:
+            conversation = []
+        conversation.append({
                 "role": "user", 
                 "content": content
-            }]
+            })
         text = self.processor.apply_chat_template(
             conversation, 
             add_generation_prompt=True, 

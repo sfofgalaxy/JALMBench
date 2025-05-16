@@ -58,7 +58,7 @@ class VITA_1_5(AudioLM):
         
         self.model.eval()
 
-    def process_audio(self, audio_path: str, prompt: str = "", **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt: str = "", addtional_system_prompt: str = "", **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         qs = prompt
@@ -93,6 +93,12 @@ class VITA_1_5(AudioLM):
         conv.append_message(conv.roles[0], qs)
         conv.append_message(conv.roles[1], None)
         sys_prompt = conv.get_prompt("lang")
+        # note: this is the specific method of adding additional system prompt for the template of vita_1_5 with backbone LLM of qwen2.5-7b
+        if addtional_system_prompt and addtional_system_prompt != "":
+            sys_prompt_contents = sys_prompt.split("<|im_end|>\n<|im_start|>user")
+            sys_prompt_content = sys_prompt_contents[0]
+            suffix = "<|im_end|>\n<|im_start|>user" + sys_prompt_contents[1]
+            sys_prompt = sys_prompt_content + " " + addtional_system_prompt + suffix
 
         if audio_path:
             input_ids = (

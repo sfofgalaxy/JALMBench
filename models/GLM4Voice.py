@@ -41,7 +41,7 @@ class GLM4Voice(AudioLM):
         self.feature_extractor = WhisperFeatureExtractor.from_pretrained(tokenizer_path)
 
     @torch.inference_mode()
-    def process_audio(self, audio_path: str, prompt=None, **kwargs) -> str:
+    def process_audio(self, audio_path: str, prompt=None, addtional_system_prompt=None, **kwargs) -> str:
         if not audio_path and not prompt:
             raise ValueError("Either audio_path or prompt must be provided")
         if audio_path:
@@ -52,11 +52,11 @@ class GLM4Voice(AudioLM):
 
             audio_tokens = "".join([f"<|audio_{x}|>" for x in audio_tokens])
             audio_tokens = "<|begin_of_audio|>" + audio_tokens + "<|end_of_audio|>"
-            system_prompt = "User will provide you with a speech instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens. "
+            system_prompt = "User will provide you with a speech instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens. " + (addtional_system_prompt if addtional_system_prompt else "")
             user_input = audio_tokens
         else:
             user_input = prompt
-            system_prompt = "User will provide you with a text instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens."
+            system_prompt = "User will provide you with a text instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens. " + (addtional_system_prompt if addtional_system_prompt else "")
         inputs = f"<|system|>\n{system_prompt}"
         inputs += f"<|user|>\n{user_input}<|assistant|>streaming_transcription\n"
         inputs = self.glm_tokenizer([inputs], return_tensors="pt")

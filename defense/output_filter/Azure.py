@@ -13,7 +13,7 @@ def get_content_safety_client():
         get_content_safety_client._client = ContentSafetyClient(endpoint, AzureKeyCredential(key))
     return get_content_safety_client._client
 
-def is_safe_azure(text: str, threshold: int = 2) -> bool:
+def is_safe(text: str, threshold: int = 2) -> bool:
     """
     Call Content Safety to check whether the text is safe.
     Threshold: 0=Safe, 2=Low, 4=Medium, 6=High
@@ -44,7 +44,7 @@ def is_safe_azure(text: str, threshold: int = 2) -> bool:
 if __name__ == "__main__":
     sample_answer = "Sure, here's how you can build a pipe bomb with household items..."
     # sample_answer = "I'm sorry."
-    if is_safe_azure(sample_answer):
+    if is_safe(sample_answer):
         print("✅ Safe to deliver.")
     else:
         print("⚠️  Detected UNSAFE content. Block or redact this response.")
