@@ -175,16 +175,15 @@ conda activate bm
 
 ### 1. Generate from audio
 ```bash
-python main.py \
+python process_single.py \
 --model qwen \
 --audio 0.wav \
 --output_text ./test/0.txt \
---output_audio ./test/0.wav
 ```
 
 ### 2. Generate from text with TTS model
 ```bash
-python main.py \
+python process_single.py \
 --model qwen \
 --text "What is the court size of a standard indoor volleyball game?" \
 --output_text ./test/0.txt \
@@ -194,7 +193,7 @@ python main.py \
 
 ### 3. Generate from audio (or text with TTS model) with prompt
 ```bash
-python main.py \
+python process_single.py \
 --model qwen \
 --audio 0.wav \
 --prompt "Answer this audio." \
@@ -202,8 +201,16 @@ python main.py \
 --output_audio ./test/0.wav
 ```
 
+**Supported Arguments:**
+- `--model`: Specifies the model to use for generating responses. (e.g., `qwen`, `diva`).
+- `--audio`: Input audio path.
+- `--prompt`: Prompt, for example: "Answer the speacker's question of this audio." 
+- `--output_text`: The output text path.
+- `--output_audio`: The output audio path (if applicable).
+
 
 ## Evaluation
+The following steps are used to evaluate the datasets in our paper, which can be accessed from this [link](https://huggingface.co/datasets/AnonymousUser000/JALMBench).
 
 ### Step 1
 Get the ALM's Response with the above commands or the following Commands.
@@ -215,7 +222,6 @@ python main.py --model qwen --data aharm --modality audio
 - `--data`: Selects the subset of the dataset. Replace `aharm` with other subsets like `tharm` (text only), `pap`, etc., depending on your evaluation needs.
 - `--modality`: Use `audio` for spoken modality input, `text` for text modality input.
 This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder.
-
 The short for model selection in the brackets.
 1. 💬 **SpeechGPT** (speechgpt)
 2. ⭐ **Spirit LM** (spirit)
@@ -241,7 +247,7 @@ python evaluation/evaluator.py --file qwen-aharm-audio.jsonl
 The GPT evaluation scores will be saved to `result-qwen-aharm-audio.jsonl`.
 
 ### Step3
-To generate the final evaluation results, run:
+To generate the final attack success rate (ASR), run:
 ```shell
 python evaluation/get_result.py --file result-qwen-aharm-audio.jsonl
 ```
