@@ -131,8 +131,9 @@ git clone https://huggingface.co/openai/whisper-large-v2
 # Download vicuna-13b-v1.1
 git clone https://huggingface.co/lmsys/vicuna-13b-v1.1
 
-# Download BEATs
-curl -L https://djf19a.dm.files.1drv.com/y4mwa3IjEyKMl5kK57BQ65XVHjIuMPD428GnN1PY9qkBfoWBAT1PURVSnl7Mq5fIRM00MWe0_IwM8F-PjWimiXCiCs_sZf6jy3-LaJtsnKzfTvQ5ogwyJvEnOdhWBnAizxkLS5EzrutX2U6GbQaMejUK6CN8DcJsjPXGGbBZfTWZN1kR7icLDiaujL5_4zrb0CBAZc30DPXWNmYsiTNqVHfKA -o BEATs.pt
+# Download BEATs from https://1drv.ms/u/s!AqeByhGUtINrgcpj8ujXH1YUtxooEg?e=E9Ncea
+# Please Refer to https://github.com/bytedance/SALMONN?tab=readme-ov-file
+curl -L <BEATS_DOWNLOAD_URL> -o BEATs.pt
 
 # Download salmoon v1 ckpt
 curl -L https://huggingface.co/tsinghua-ee/SALMONN/resolve/main/salmonn_v1.pth -o salmonn_v1.pth
