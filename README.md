@@ -45,11 +45,11 @@ git clone https://github.com/sfofgalaxy/JALMBench.git
 docker run -it \
 -v /path/to/cuda-12.4:/usr/local/cuda \
 -v /path/to/cached_models:/home/cached_models \
--v /data_sda/zf/cache:/home/cache \
+-v /path/to/cache:/home/cache \
 -v path/to/xxx/:/home/xxx/ \
 -e CUDA_HOME="/usr/local/cuda" \
--e TRANSFORMERS_CACHE="/data_sda/zf/cache/transformers" \
--e HF_HOME="/data_sda/zf/cache/huggingface" \
+-e TRANSFORMERS_CACHE="/home/cache/transformers" \
+-e HF_HOME="/home/cache/huggingface" \
 --gpus all \
 --name benchmark \
 ziffer99/audio-benchmark:0.1
@@ -58,6 +58,8 @@ conda activate bm
 
 cd /home/JALMBench
 ```
+Note that `TRANSFORMERS_CACHE`, `HF_HOME`, and `-v /path/to/cache:/home/cache` are optional, you may choose based on your own path. 
+
 
 #### `Conda`
 1. install `g++`
