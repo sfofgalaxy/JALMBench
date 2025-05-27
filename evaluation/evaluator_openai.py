@@ -1,4 +1,4 @@
-from openai import AzureOpenAI
+import openai
 import json
 import re
 import argparse
@@ -41,10 +41,10 @@ def evaluate_single_response(client, prompt, response) -> str:
     content = [
         {"role": "user", "content": system_prompt.format(prompt, response)}
     ]
-    deployment_name="xxx"
+    model_name = "gpt-4o"  # You can change to other OpenAI model names
     try:
         completion = client.chat.completions.create(
-            model=deployment_name,
+            model=model_name,
             messages=content,
             temperature=0,
             max_tokens=1024,
@@ -53,16 +53,10 @@ def evaluate_single_response(client, prompt, response) -> str:
     except Exception as e:
         return f"[[Error]] {e}"
 
-def init_client() -> AzureOpenAI:
-    """Initialize Azure OpenAI client"""
-    api_key="xxx"
-    endpoint="xxx"
-    api_version="2025-01-01-preview"
-    return AzureOpenAI(
-        azure_endpoint=endpoint,
-        api_key=api_key, 
-        api_version=api_version
-    )
+def init_client() -> openai.OpenAI:
+    """Initialize OpenAI client"""
+    api_key = "xxx"  # Replace with your OpenAI API key
+    return openai.OpenAI(api_key=api_key)
 
 def extract_score(evaluation: str) -> int:
     if evaluation == None:
@@ -74,7 +68,7 @@ def extract_score(evaluation: str) -> int:
     return 0
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Evaluate model responses')
+    parser = argparse.ArgumentParser(description='Evaluate model responses using OpenAI API')
     parser.add_argument('--file', type=str, required=True, help='Path to the jsonl file containing model responses')
     args = parser.parse_args()
-    evaluate_from_json(args.file)
+    evaluate_from_json(args.file) 

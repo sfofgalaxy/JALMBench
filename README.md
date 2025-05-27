@@ -122,10 +122,13 @@ The CUDA version on the host device is 12.4. Mounting CUDA is mandatory, while m
 git clone https://github.com/sfofgalaxy/JALMBench.git
 
 ```bash
+git clone https://github.com/sfofgalaxy/JALMBench.git
+
 docker run -it \
 -v /path/to/cuda-12.4:/usr/local/cuda \
 -v /path/to/cached_models:/home/cached_models \
 -v /path/to/cache:/home/cache \
+-v path/to/JALMBench/:/home/JALMBench/ \
 -e CUDA_HOME="/usr/local/cuda" \
 -e TRANSFORMERS_CACHE="/home/cache/transformers" \
 -e HF_HOME="/home/cache/huggingface" \
@@ -135,9 +138,7 @@ ziffer99/audio-benchmark:0.1
 
 conda activate bm
 
-cd /home
-git clone https://github.com/sfofgalaxy/JALMBench.git
-cd JALMBench
+cd /home/JALMBench
 ```
 Note that `TRANSFORMERS_CACHE`, `HF_HOME`, and `-v /path/to/cache:/home/cache` are optional, you may choose based on your own path.
 
@@ -249,20 +250,21 @@ python main.py --model qwen --data ADiv --modality audio --language en --gender 
 This command will only process samples in the ADiv subset where language is English, gender is female, and accent is US.
 
 ---
-This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder. Please refer to `main.py` for more details.
+This will generate the output and save it to a file named `qwen-AHarm-audio.jsonl` in the root folder. Please refer to `main.py` for more details.
 
 ### Step 2
-
+Before evaluating the results, you need to configure several parameters in `evaluation/evaluator.py` by replacing `"xxx"` in it if you use Azure OpenAI API, you can easily change: `deployment_name`, `api_key`, `endpoint`. (if you are using API provided by OpenAI, you should use `evaluation/evaluator_openai.py` accordingly)
 For datasets `alpacaeval`, `commoneval`, `wildvoice`, and `sd-qa`, we use `gpt-4o-mini` to evaluate the responses. Run the following command to get the GPT score:
 ```shell
-python evaluation/evaluator.py --file qwen-aharm-audio.jsonl
+# or evaluation/evaluator_openai.py if you are using API provided by OpenAI
+python evaluation/evaluator.py --file qwen-AHarm-audio.jsonl
 ```
-The GPT evaluation scores will be saved to `result-qwen-aharm-audio.jsonl`.
+The GPT evaluation scores will be saved to `result-qwen-AHarm-audio.jsonl`.
 
 ### Step3
 To generate the final attack success rate (ASR), run:
 ```shell
-python evaluation/get_result.py --file result-qwen-aharm-audio.jsonl
+python evaluation/get_result.py --file result-qwen-AHarm-audio.jsonl
 ```
 
 ## Project Structure Description
