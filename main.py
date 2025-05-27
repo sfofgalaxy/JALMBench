@@ -8,6 +8,11 @@ import time
 from datasets import load_dataset
 import importlib.util
 
+# List of allowed subset names for JALMBench
+data_subsets = [
+    'ADiv', 'AHarm', 'AMSE', 'AdvWave', 'BoN', 'DAN', 'DI', 'ICA', 'PAP', 'SSJ', 'THarm'
+]
+
 def load_defense_prompt(defense_name):
     """Load defense prompt from defense/prompts directory"""
     prompt_path = os.path.join('defense', 'prompts', f'{defense_name}.md')
@@ -35,15 +40,31 @@ def parse_args():
     parser.add_argument('--prompt', type=str, default=None, help='optional prompt')
     parser.add_argument('--defense', type=str, default=None, choices=['JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'], 
                       help='defense method to use')
+    # Add filter arguments
+    parser.add_argument('--language', type=str, default=None, help='filter by language, e.g. en')
+    parser.add_argument('--gender', type=str, default=None, help='filter by gender, e.g. male, female, Neutral')
+    parser.add_argument('--accent', type=str, default=None, help='filter by accent, e.g. US, GB, AU, IN')
     return parser.parse_args()
 
 def main():
     args = parse_args()
+    # Check if the specified subset is valid
+    if args.data not in data_subsets:
+        print(f"Error: '{args.data}' is not a valid subset. Choose from: {data_subsets}")
+        exit(1)
     # Load model
     model = get_model(args.model.lower())
-    # Load dataset
+    # Load dataset - args.data specifies the subset name, each subset only has 'train' split
     ds = load_dataset("AnonymousUser000/JALMBench", args.data)
-    data = ds[args.data] if args.data in ds else ds['train']
+    data = ds['train']
+    # Filter data by language, gender, accent if specified
+    if args.language is not None:
+        data = [item for item in data if 'language' in item and item['language'] == args.language]
+    if args.gender is not None:
+        data = [item for item in data if 'gender' in item and item['gender'] == args.gender]
+    if args.accent is not None:
+        data = [item for item in data if 'accent' in item and item['accent'] == args.accent]
+    
     # Output filename
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
