@@ -1,3 +1,11 @@
+Official Repo for [JALMBench: Benchmarking Jailbreak Vulnerabilities in Audio Language Models
+](https://www.arxiv.org/abs/2505.17568)
+
+
+![Teaser Preview](teaser.png)
+
+---
+
 # JALMBench
 JALMBench is a modular benchmark framework designed to evaluate jailbreak attacks and defenses against ALMs. Currently, \Bench supports 12 ALMs, 8 jailbreak attacks (4 text-transferred methods and 4 audio-originated methods), and 5 defense methods.  It is highly extensible.
 
