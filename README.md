@@ -126,7 +126,6 @@ docker run -it \
 -v /path/to/cuda-12.4:/usr/local/cuda \
 -v /path/to/cached_models:/home/cached_models \
 -v /path/to/cache:/home/cache \
--v path/to/xxx/:/home/xxx/ \
 -e CUDA_HOME="/usr/local/cuda" \
 -e TRANSFORMERS_CACHE="/home/cache/transformers" \
 -e HF_HOME="/home/cache/huggingface" \
