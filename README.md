@@ -16,27 +16,6 @@ JALMBench is a modular benchmark framework designed to evaluate jailbreak attack
 
 ---
 
-## Supported Models
-
-1. 💬 **SpeechGPT**
-2. ⭐ **Spirit LM**
-3. 🗣️ **GLM-4-Voice**
-4. 🐟 **SALMONN**
-5. 🎙️ **Qwen2-Audio-7B-Instruct**
-6. 🦙 **LLaMA-Omni**
-7. 🔊 **DiVA**
-8. ❄️ **Freeze-Omni**
-9. 🧠 **VITA-1.0**
-10. ⚡ **VITA-1.5**
-11. 🤖 **GPT-4o-Audio (OpenAI)**
-12. 🌟 **Gemini-2.0-Flash**
-
----
-
-### Notes
-- Models are listed in alphabetical order.
-- For detailed information on each model, please refer to their respective documentation or official websites.
-
 ## Usage
 
 ### 1. Download Models
@@ -125,9 +104,10 @@ git clone https://huggingface.co/VITA-MLLM/VITA
 git clone https://huggingface.co/VITA-MLLM/VITA-1.5
 git clone https://huggingface.co/OpenGVLab/InternViT-300M-448px
 ```
----
+
 Note: Other models will be downloaded during usage, you can also download them in advance.
 
+---
 ### 2. Create Environment
 Pre-requirement:
 <!-- pip install sox
@@ -228,6 +208,10 @@ python process_single.py \
 - `--output_text`: The output text path.
 - `--output_audio`: The output audio path (if applicable).
 
+---
+##### Supported Models:
+
+For detailed information on each model, please refer to their respective documentation or official websites.
 The short for model selection in the brackets.
 1. 💬 **SpeechGPT** (speechgpt)
 2. ⭐ **Spirit LM** (spirit)
@@ -239,7 +223,7 @@ The short for model selection in the brackets.
 8. ❄️ **FreezeOmni** (fo)
 9. 🧠 **VITA-1.0** (vita_1)
 10. ⚡ **VITA-1.5** (vita_1_5)
-11. 🤖 **OpenAI GPT** (gpt)
+11. 🤖 **OpenAI GPT-4o-Audio** (gpt)
 12. 🌟 **Gemini-2.0-Flash** (gemini)
 
 ## Evaluation
