@@ -231,11 +231,11 @@ The following steps are used to evaluate the datasets in our paper, which can be
 ### Step 1
 Get the ALM's Response with the above commands or the following Commands.
 ```shell
-python main.py --model qwen --data aharm --modality audio
+python main.py --model qwen --data AHarm --modality audio
 ```
 **Supported Arguments:**
 - `--model`: Specifies the model to use for generating responses. (e.g., `qwen`, `diva`).
-- `--data`: Selects the subset of the dataset. Replace `aharm` with other subsets like `tharm` (text only), `pap`, etc., depending on your evaluation needs.
+- `--data`: Selects the subset of the dataset. Replace `AHarm` with other subsets like `THarm` (text only), `PAP`, etc., depending on your evaluation needs.
 - `--modality`: Use `audio` for spoken modality input, `text` for text modality input. This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder.
 - `--defense`: Defense methods used, default: None (i.e. no defense). (e.g., `AdaShield`, `LLaMAGuard`)
 - `--language`: (Optional) Filter by language, e.g. `en`.

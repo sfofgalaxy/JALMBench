@@ -7,6 +7,7 @@ from pathlib import Path
 import time
 from datasets import load_dataset
 import importlib.util
+import soundfile as sf
 
 # List of allowed subset names for JALMBench
 data_subsets = [
@@ -81,19 +82,35 @@ def main():
     
     # Process each item
     with open(output_path, 'w', encoding='utf-8') as fout:
-        for item in data:
+        for idx, item in enumerate(data):
             # Skip invalid data
             if args.modality == 'audio':
                 if 'audio' not in item or item['audio'] is None:
                     continue
-                audio_path = item['audio']['path'] if isinstance(item['audio'], dict) and 'path' in item['audio'] else item['audio']
-                if not audio_path or not os.path.exists(audio_path):
-                    continue
+                audio_data = item['audio']
+                # If audio_data is not a file path, save it as a temporary wav file
+                if isinstance(audio_data, str) and os.path.exists(audio_data):
+                    audio_path = audio_data
+                    temp_file = None
+                else:
+                    # Save audio to temporary wav file
+                    audio_path = f"tmp_audio_{idx}.wav"
+                    # audio_data can be dict with 'array' and 'sampling_rate', or datasets Audio object
+                    if isinstance(audio_data, dict) and 'array' in audio_data and 'sampling_rate' in audio_data:
+                        sf.write(audio_path, audio_data['array'], audio_data['sampling_rate'])
+                    elif hasattr(audio_data, 'array') and hasattr(audio_data, 'sampling_rate'):
+                        sf.write(audio_path, audio_data.array, audio_data.sampling_rate)
+                    else:
+                        continue
+                    temp_file = audio_path
                 # Apply defense prompt if specified
                 current_prompt = args.prompt
                 if defense_prompt:
                     current_prompt = f"{defense_prompt}\n{args.prompt}" if args.prompt else defense_prompt
                 response = model.process_audio(audio_path, prompt=current_prompt)
+                # Remove temporary file if created
+                if temp_file is not None and os.path.exists(temp_file):
+                    os.remove(temp_file)
             else:
                 if 'text' not in item or item['text'] is None:
                     continue
