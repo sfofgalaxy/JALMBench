@@ -4,6 +4,8 @@ Official Repo for [JALMBench: Benchmarking Jailbreak Vulnerabilities in Audio La
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Dataset](https://img.shields.io/badge/🤗%20Dataset-Hugging%20Face-yellow)](https://huggingface.co/datasets/AnonymousUser000/JALMBench)
+[![arXiv](https://img.shields.io/badge/arXiv-2505.17568-b31b1b.svg)](https://arxiv.org/abs/2505.17568)
+
 
 ![Teaser Preview](teaser.png)
 
