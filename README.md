@@ -272,6 +272,17 @@ To generate the final attack success rate (ASR), run:
 python evaluation/get_result.py --file result-qwen-AHarm-audio.jsonl
 ```
 
+For attack methods like AMSE, BoN, PAP, AdvWave where multiple attack attempts share the same ID and any successful attack counts as success for that ID, use the `by_id` method:
+```shell
+python evaluation/get_result.py --file result-qwen-AHarm-audio.jsonl --method by_id
+```
+
+**Supported Arguments:**
+- `--file`: Path to the result jsonl file
+- `--method`: ASR calculation method. Options:
+  - `simple` (default): Calculate ASR based on individual samples
+  - `by_id`: Group by ID and consider an ID successful if any sample with that ID succeeds (for AMSE/BoN/PAP/AdvWave attacks)
+
 ## Project Structure Description
 
 ```bash

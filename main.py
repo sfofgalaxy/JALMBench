@@ -149,7 +149,6 @@ def main():
             # Save only id, response, text, original_text
             out = {
                 'id': item['id'],
-                'round': item.get('round', None),
                 'response': response,
                 'text': item['text'],
                 'original_text': item['original_text']
