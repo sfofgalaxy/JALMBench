@@ -3,11 +3,11 @@ from InitModel import get_model
 import argparse
 import os
 import json
-from pathlib import Path
-import time
 from datasets import load_dataset
 import importlib.util
 import soundfile as sf
+from huggingface_hub import login
+import dotenv
 
 # List of allowed subset names for JALMBench
 data_subsets = [
@@ -133,6 +133,9 @@ def main():
                 if temp_file is not None and os.path.exists(temp_file):
                     os.remove(temp_file)
             else:
+                # Only DAN, DI, ICA, PAP, THarm support text data
+                if args.data.lower() not in ['dan', 'di', 'ica', 'pap', 'tharm']:
+                    continue
                 if 'text' not in item or item['text'] is None:
                     continue
                 # Apply defense prompt if specified
@@ -150,11 +153,12 @@ def main():
             out = {
                 'id': item['id'],
                 'response': response,
-                'text': item['text'],
                 'original_text': item['original_text']
             }
             fout.write(json.dumps(out, ensure_ascii=False) + '\n')
 
 if __name__ == "__main__":
+    dotenv.load_dotenv()
+    login(token=os.getenv('HUGGING_FACE_TOKEN'))
     main()
 

@@ -283,6 +283,9 @@ python evaluation/get_result.py --file result-qwen-AHarm-audio.jsonl --method by
   - `simple` (default): Calculate ASR based on individual samples
   - `by_id`: Group by ID and consider an ID successful if any sample with that ID succeeds (for AMSE/BoN/PAP/AdvWave attacks)
 
+**NOTE**
+If you are evaluating the `AdvWave` method performance, you should combine results from both `AHarm` and `AdvWave` since the `AdvWave` method only optimizes samples that originally failed in the `AHarm` attack, requiring the combined evaluation of both datasets for the final assessment.
+
 ## Project Structure Description
 
 ```bash
