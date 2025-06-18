@@ -118,7 +118,7 @@ def main():
                 current_prompt = args.prompt
                 if defense_prompt:
                     current_prompt = f"{defense_prompt}\n{args.prompt}" if args.prompt else defense_prompt
-                response = model.process_text(item['text'], prompt=current_prompt)
+                response = model.process_audio(audio_path=None, prompt=item['text'], addtional_system_prompt=current_prompt)
             
             # Apply output filter if specified
             if output_filter and hasattr(output_filter, 'is_safe'):
