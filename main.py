@@ -14,6 +14,21 @@ data_subsets = [
     'ADiv', 'AHarm', 'AMSE', 'AdvWave', 'BoN', 'DAN', 'DI', 'ICA', 'PAP', 'SSJ', 'THarm'
 ]
 
+model_mapping = {
+    'diva': 'DiVA',
+    'fo': 'Freeze-Omni',
+    'glm': 'GLM-4-Voice',
+    'gpt': 'GPT-4o-Audio',
+    'gemini': 'Gemini-2.0-Flash',
+    'lo': 'LLaMA-Omni',
+    'qwen': 'Qwen2-Audio',
+    'salmonn': 'SalmonN',
+    'speechgpt': 'SpeechGPT',
+    'spirit': 'Spirit LM Base',
+    'vita': 'VITA-1.0',
+    'vita_1_5': 'VITA-1.5'
+}
+
 def load_defense_prompt(defense_name):
     """Load defense prompt from defense/prompts directory"""
     prompt_path = os.path.join('defense', 'prompts', f'{defense_name}.md')
@@ -87,6 +102,9 @@ def main():
             if args.modality == 'audio':
                 if 'audio' not in item or item['audio'] is None:
                     continue
+                # If args.data is AdvWave, only process item with target model
+                if args.data.lower() == 'advwave' and item['target_model'] != model_mapping[args.model.lower()]:
+                    continue
                 audio_data = item['audio']
                 # If audio_data is not a file path, save it as a temporary wav file
                 if isinstance(audio_data, str) and os.path.exists(audio_data):
@@ -104,10 +122,13 @@ def main():
                         continue
                     temp_file = audio_path
                 # Apply defense prompt if specified
-                current_prompt = args.prompt
-                if defense_prompt:
-                    current_prompt = f"{defense_prompt}\n{args.prompt}" if args.prompt else defense_prompt
-                response = model.process_audio(audio_path, prompt=current_prompt)
+                current_prompt = item.get('prompt', None) # if SSJ, item['prompt'] is None, SSJ must contain prompt in the text
+                if args.prompt:
+                    if current_prompt is not None:
+                        current_prompt = f"{current_prompt}\n{args.prompt}"
+                    else:
+                        current_prompt = args.prompt
+                response = model.process_audio(audio_path, prompt=current_prompt, addtional_system_prompt=defense_prompt)
                 # Remove temporary file if created
                 if temp_file is not None and os.path.exists(temp_file):
                     os.remove(temp_file)
@@ -115,10 +136,10 @@ def main():
                 if 'text' not in item or item['text'] is None:
                     continue
                 # Apply defense prompt if specified
-                current_prompt = args.prompt
-                if defense_prompt:
-                    current_prompt = f"{defense_prompt}\n{args.prompt}" if args.prompt else defense_prompt
-                response = model.process_audio(audio_path=None, prompt=item['text'], addtional_system_prompt=current_prompt)
+                current_prompt = item['text']
+                if args.prompt:
+                    current_prompt = f"{current_prompt}\n{args.prompt}"
+                response = model.process_audio(audio_path=None, prompt=current_prompt, addtional_system_prompt=defense_prompt)
             
             # Apply output filter if specified
             if output_filter and hasattr(output_filter, 'is_safe'):
@@ -128,6 +149,7 @@ def main():
             # Save only id, response, text, original_text
             out = {
                 'id': item['id'],
+                'round': item.get('round', None),
                 'response': response,
                 'text': item['text'],
                 'original_text': item['original_text']
