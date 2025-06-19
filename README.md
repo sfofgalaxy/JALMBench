@@ -28,12 +28,25 @@ For evaluating models on the OpenBookQA dataset, we provide a streamlined 3-step
 ### Step 1: Download Audio Data and Evaluate Models
 ```bash
 cd utility
-python download_and_eval.py
+python download_and_eval.py --model qwen --defense no_defense
 ```
 This script will:
 - Check if OpenBookQA audio files exist, download them if not
-- Evaluate specified models on the audio dataset
-- Save prediction results to `./results/{defense_method}/{model_name}.json`
+- Evaluate the specified model on the audio dataset
+- Save prediction results to `{model_name}-openbookqa-utility-{defense_method}.json`
+
+**Supported Arguments:**
+- `--model`: Model name to evaluate (required, e.g., qwen, vita, gemini, diva)
+- `--defense`: Defense method to use (optional, default: no_defense, choices: no_defense, JailbreakBench, FigStep, AdaShield, LLaMAGuard, Azure)
+
+**Examples:**
+```bash
+# Evaluate Qwen model without defense
+python download_and_eval.py --model qwen
+
+# Evaluate VITA model with AdaShield defense
+python download_and_eval.py --model vita --defense AdaShield
+```
 
 ### Step 2: Extract Answer Choices
 ```bash
@@ -54,7 +67,7 @@ This script will:
 - Generate ranking reports sorted by accuracy
 - Save comprehensive results to `accuracy_results.json`
 
-**Configuration**: You can modify the model names and defense methods in each script's `main()` function according to your evaluation needs.
+**Configuration**: You can specify different models and defense methods using command line arguments for the evaluation scripts.
 
 ---
 

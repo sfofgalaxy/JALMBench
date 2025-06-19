@@ -4,6 +4,7 @@ from tqdm import tqdm
 import soundfile as sf  # pip install soundfile
 import json
 import sys
+import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from InitModel import get_model
 
@@ -33,7 +34,17 @@ def download_audio_data():
     print(f"All audio files saved to {save_dir} directory.")
     return save_dir
 
-def evaluate_model(model_name, defense_method="no_defense"):
+def parse_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Download OpenBookQA audio data and evaluate models')
+    parser.add_argument('--model', type=str, required=True, 
+                       help='Model name to evaluate (e.g., qwen, vita, gemini, diva)')
+    parser.add_argument('--defense', type=str, default="no_defense", 
+                       choices=['no_defense', 'JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'],
+                       help='Defense method to use (default: no_defense)')
+    return parser.parse_args()
+
+def evaluate_model(model_name: str, defense_method: str = "no_defense"):
     """Evaluate a specific model on openbookqa dataset"""
     # Load dataset
     dataset = load_dataset("hlt-lab/voicebench", "openbookqa", split="test", cache_dir="./openbookqa_data")
@@ -44,10 +55,8 @@ def evaluate_model(model_name, defense_method="no_defense"):
     results = []
     audio_dir = "./openbookqa_audios"
     
-    # Create output directory
-    output_dir = f"./results/{defense_method}"
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f"{model_name}.json")
+    # Output file in current directory
+    output_file = f"{model_name}-openbookqa-utility-{defense_method}.json"
     
     # Process each audio sample
     for idx, item in enumerate(tqdm(dataset, desc=f"Evaluating {model_name}")):
@@ -72,25 +81,20 @@ def evaluate_model(model_name, defense_method="no_defense"):
 
 def main():
     """Main function to download audio and evaluate models"""
-    # List of models to evaluate
-    model_names = [
-        "vita", "gemini"
-    ]
-    
-    # Defense methods to test
-    defense_types = ["no_defense"]  # Can add more: ["AdaShield", "FigStep", "JailbreakBench"]
+    # Parse command line arguments
+    args = parse_args()
     
     # Step 1: Download audio data
     audio_dir = download_audio_data()
     
-    # Step 2: Evaluate each model
-    for model_name in model_names:
-        for defense_type in defense_types:
-            try:
-                result_file = evaluate_model(model_name, defense_type)
-                print(f"Completed evaluation for {model_name} with {defense_type}")
-            except Exception as e:
-                print(f"Error evaluating {model_name} with {defense_type}: {str(e)}")
+    # Step 2: Evaluate the specified model
+    try:
+        result_file = evaluate_model(args.model, args.defense)
+        print(f"Completed evaluation for {args.model} with {args.defense}")
+        print(f"Results saved to: {result_file}")
+    except Exception as e:
+        print(f"Error evaluating {args.model} with {args.defense}: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main() 
