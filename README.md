@@ -21,6 +21,43 @@ JALMBench is a modular benchmark framework designed to evaluate jailbreak attack
 
 ---
 
+## OpenBookQA Evaluation Utility
+
+For evaluating models on the OpenBookQA dataset, we provide a streamlined 3-step workflow in the `utility/` directory:
+
+### Step 1: Download Audio Data and Evaluate Models
+```bash
+cd utility
+python download_and_eval.py
+```
+This script will:
+- Check if OpenBookQA audio files exist, download them if not
+- Evaluate specified models on the audio dataset
+- Save prediction results to `./results/{defense_method}/{model_name}.json`
+
+### Step 2: Extract Answer Choices
+```bash
+python extract_answers.py
+```
+This script will:
+- Process prediction files and extract multiple choice answers (A/B/C/D)
+- Use regex pattern matching first for fast extraction
+- Fall back to LLM-based extraction when regex fails
+- Save processed results to `./answer/{defense_method}/{model_name}.json`
+
+### Step 3: Calculate Accuracy
+```bash
+python calculate_accuracy.py
+```
+This script will:
+- Calculate accuracy for all models across different defense methods
+- Generate ranking reports sorted by accuracy
+- Save comprehensive results to `accuracy_results.json`
+
+**Configuration**: You can modify the model names and defense methods in each script's `main()` function according to your evaluation needs.
+
+---
+
 ## Usage
 
 ### 1. Download Models
