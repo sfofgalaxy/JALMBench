@@ -2,16 +2,19 @@ from openai import AzureOpenAI
 import json
 import os
 import argparse
+from tqdm import tqdm
+
+DEPLOYMENT = "xxx"
+API_KEY = "xxx"
+ENDPOINT = "xxx"
+API_VERSION = "xxx"
 
 def init_client() -> AzureOpenAI:
     """Initialize Azure OpenAI client"""
-    api_key="xxx"
-    endpoint="xxx"
-    api_version="2025-01-01-preview"
     return AzureOpenAI(
-        azure_endpoint=endpoint,
-        api_key=api_key, 
-        api_version=api_version
+        azure_endpoint=ENDPOINT,
+        api_key=API_KEY, 
+        api_version=API_VERSION
     )
 
 def extract_choice_regex(prediction: str) -> str:
@@ -133,7 +136,7 @@ Now, give the response that which option the model has chosen:
     for _ in range(3):
         try:
             completion = client.chat.completions.create(
-                model="gpt-4o",
+                model=DEPLOYMENT,
                 messages=content,
                 temperature=0.1,
                 max_tokens=10,
@@ -175,7 +178,7 @@ def process_predictions(model_name: str, defense_type: str):
     output_file_path = f"{model_name}-openbookqa-utility-{defense_type}-answer.json"
     
     # Process each prediction
-    for item in data:
+    for item in tqdm(data, desc="Processing predictions"):
         prediction = item["prediction"]
         question = item["question"]
         choice = extract_choice(client, question, prediction)
