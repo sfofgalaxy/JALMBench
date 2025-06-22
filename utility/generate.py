@@ -63,7 +63,7 @@ def evaluate_model(model_name: str, defense_method: str = "no_defense"):
         audio_path = os.path.join(audio_dir, f"{idx}.wav")
         
         # Generate prediction
-        pred = model.process_audio(audio_path, "Please give the correct choice of the speaker's question without any additional information.")
+        pred = model.process_audio(audio_path=audio_path, prompt="Please give the correct choice (A, B, C, D) of the speaker's question without any additional information.")
         
         results.append({
             "audio_path": audio_path,

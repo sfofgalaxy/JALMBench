@@ -1,6 +1,7 @@
 from openai import AzureOpenAI
 import json
 import os
+import argparse
 
 def init_client() -> AzureOpenAI:
     """Initialize Azure OpenAI client"""
@@ -186,29 +187,34 @@ def process_predictions(json_file_path: str, defense_type: str):
     print(f"Processed results saved to: {output_path}")
     return output_path
 
+def parse_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Extract choices from model predictions')
+    parser.add_argument('--model', type=str, required=True, 
+                       help='Model name to process (e.g., qwen, vita, gemini, diva)')
+    parser.add_argument('--defense', type=str, default="no_defense", 
+                       choices=['no_defense', 'JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'],
+                       help='Defense method used (default: no_defense)')
+    return parser.parse_args()
+
 def main():
     """Main function to extract answers from prediction files"""
-    # Models to process
-    model_names = [
-        "vita", "gemini"
-    ]
+    # Parse command line arguments
+    args = parse_args()
     
-    # Defense methods to process
-    defense_types = ["no_defense", "AdaShield", "FigStep", "JailbreakBench"]
-
-    for model_name in model_names:
-        for defense_type in defense_types:
-            input_file = f"./results/{defense_type}/{model_name}.json"
-            
-            # Check if input file exists
-            if os.path.exists(input_file):
-                try:
-                    process_predictions(input_file, defense_type)
-                    print(f"Finished processing {model_name} with {defense_type}")
-                except Exception as e:
-                    print(f"Error processing {model_name} with {defense_type}: {str(e)}")
-            else:
-                print(f"Input file not found: {input_file}")
+    # Construct input file path
+    input_file = f"./results/{args.defense}/{args.model}.json"
+    
+    # Check if input file exists
+    if not os.path.exists(input_file):
+        print(f"Input file not found: {input_file}")
+        return
+    
+    try:
+        process_predictions(input_file, args.defense)
+        print(f"Finished processing {args.model} with {args.defense}")
+    except Exception as e:
+        print(f"Error processing {args.model} with {args.defense}: {str(e)}")
 
 if __name__ == "__main__":
     main() 

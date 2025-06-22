@@ -21,56 +21,6 @@ JALMBench is a modular benchmark framework designed to evaluate jailbreak attack
 
 ---
 
-## OpenBookQA Evaluation Utility
-
-For evaluating models on the OpenBookQA dataset, we provide a streamlined 3-step workflow in the `utility/` directory:
-
-### Step 1: Download Audio Data and Evaluate Models
-```bash
-cd utility
-python download_and_eval.py --model qwen --defense no_defense
-```
-This script will:
-- Check if OpenBookQA audio files exist, download them if not
-- Evaluate the specified model on the audio dataset
-- Save prediction results to `{model_name}-openbookqa-utility-{defense_method}.json`
-
-**Supported Arguments:**
-- `--model`: Model name to evaluate (required, e.g., qwen, vita, gemini, diva)
-- `--defense`: Defense method to use (optional, default: no_defense, choices: no_defense, JailbreakBench, FigStep, AdaShield, LLaMAGuard, Azure)
-
-**Examples:**
-```bash
-# Evaluate Qwen model without defense
-python download_and_eval.py --model qwen
-
-# Evaluate VITA model with AdaShield defense
-python download_and_eval.py --model vita --defense AdaShield
-```
-
-### Step 2: Extract Answer Choices
-```bash
-python extract_answers.py
-```
-This script will:
-- Process prediction files and extract multiple choice answers (A/B/C/D)
-- Use regex pattern matching first for fast extraction
-- Fall back to LLM-based extraction when regex fails
-- Save processed results to `./answer/{defense_method}/{model_name}.json`
-
-### Step 3: Calculate Accuracy
-```bash
-python calculate_accuracy.py
-```
-This script will:
-- Calculate accuracy for all models across different defense methods
-- Generate ranking reports sorted by accuracy
-- Save comprehensive results to `accuracy_results.json`
-
-**Configuration**: You can specify different models and defense methods using command line arguments for the evaluation scripts.
-
----
-
 ## Usage
 
 ### 1. Download Models
@@ -336,6 +286,39 @@ python evaluation/get_result.py --file result-qwen-AHarm-audio.jsonl --method by
 **NOTE**
 If you are evaluating the `AdvWave` method performance, you should combine results from both `AHarm` and `AdvWave` since the `AdvWave` method only optimizes samples that originally failed in the `AHarm` attack, requiring the combined evaluation of both datasets for the final assessment.
 
+## OpenBookQA Evaluation Utility
+
+For evaluating models on the OpenBookQA dataset, we provide a streamlined 3-step workflow in the `utility/` directory:
+
+### Step 1: Generate Model Predictions
+```bash
+python utility/generate.py --model qwen --defense no_defense
+```
+This script will:
+- Check if OpenBookQA audio files exist, download them if not
+- Evaluate the specified model on the audio dataset
+- Save prediction results to `{model_name}-openbookqa-utility-{defense_method}-generate.json`
+
+### Step 2: Extract Answer Choices
+```bash
+python utility/extract_answers.py --model qwen --defense no_defense
+```
+This script will:
+- Process prediction files and extract multiple choice answers (A/B/C/D)
+- Use regex pattern matching first for fast extraction
+- Fall back to LLM-based extraction when regex fails
+- Save processed results to `{model_name}-openbookqa-utility-{defense_method}-answer.json`
+
+### Step 3: Calculate Accuracy
+```bash
+python utility/calculate_accuracy.py --model qwen --defense no_defense
+```
+This script will:
+- Calculate accuracy for the specified model and defense method
+- Display accuracy percentage results
+
+---
+
 ## Project Structure Description
 
 ```bash
@@ -345,7 +328,8 @@ If you are evaluating the `AdvWave` method performance, you should combine resul
 │  └─prompts
 ├─evaluation
 ├─matcha
-└─models
+├─models
+└─utility
 ```
 - `models`: This contains classes related to ALMs (Audio Language Models). You can directly implement the `AudioLM.py` class to add new ALMs. Modifying the `process_text(·)` function in `AudioLM.py` allows you to change the TTS tool.
 
@@ -356,6 +340,8 @@ If you are evaluating the `AdvWave` method performance, you should combine resul
 - `evaluation`: Used to evaluate the models.
 
 - `audio_edit_tools`: A set of tools for audio editing (preprocessing), including speed adjustment, volume control, adding white noise, adding background sounds, pitch modification, smoothing, codecs (compression), audio filters (high/low frequency filtering), echo, quantization (bit reduction), and audio concatenation (e.g., appending harmful queries before or after an audio clip).
+
+- `utility`: To evaluate the utility on the openbookqa dataset.
 
 ## Discussion & Communication
 

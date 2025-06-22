@@ -1,5 +1,6 @@
 import json
 import os
+import argparse
 
 def calculate_accuracy(data):
     """Calculate accuracy rate"""
@@ -63,33 +64,53 @@ def save_results_to_file(all_results, output_file="accuracy_results.json"):
         json.dump(all_results, f, ensure_ascii=False, indent=4)
     print(f"\nAll results saved to: {output_file}")
 
+def parse_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Calculate accuracy for model predictions')
+    parser.add_argument('--model', type=str, required=True, 
+                       help='Model name to calculate accuracy for (e.g., qwen, vita, gemini, diva)')
+    parser.add_argument('--defense', type=str, default="no_defense", 
+                       choices=['no_defense', 'JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'],
+                       help='Defense method to calculate accuracy for (default: no_defense)')
+    return parser.parse_args()
+
+def calculate_accuracy_for_model(model_name: str, defense_method: str):
+    """Calculate accuracy for a specific model and defense method"""
+    # Get the specific json file
+    answer_dir = f"./answer/{defense_method}"
+    filepath = os.path.join(answer_dir, f"{model_name}.json")
+    
+    if not os.path.exists(filepath):
+        print(f"File not found: {filepath}")
+        return None
+    
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            
+        accuracy = calculate_accuracy(data)
+        return accuracy
+        
+    except Exception as e:
+        print(f"Error processing {filepath}: {str(e)}")
+        return None
+
 def main():
-    """Main function to calculate accuracy for all defense methods"""
-    # Defense methods to evaluate
-    defense_methods = ["no_defense", "AdaShield", "FigStep", "JailbreakBench", "LLaMA-Guard", "Azure"]
+    """Main function to calculate accuracy for a specific model and defense method"""
+    # Parse command line arguments
+    args = parse_args()
     
-    all_results = {}
+    # Calculate accuracy for the specified model and defense method
+    accuracy = calculate_accuracy_for_model(args.model, args.defense)
     
-    for defense_method in defense_methods:
-        print(f"\nProcessing {defense_method}...")
-        results = process_defense_method(defense_method)
-        all_results[defense_method] = results
-        print_results(defense_method, results)
-    
-    # Save all results to file
-    save_results_to_file(all_results)
-    
-    # Print summary
-    print("\n" + "="*50)
-    print("SUMMARY - Best Model for Each Defense Method:")
-    print("="*50)
-    
-    for defense_method, results in all_results.items():
-        if results:
-            best_model = max(results.items(), key=lambda x: x[1])
-            print(f"{defense_method:<20}: {best_model[0]} ({best_model[1]:.2%})")
-        else:
-            print(f"{defense_method:<20}: No results available")
+    if accuracy is not None:
+        print(f"\nAccuracy Results:")
+        print("-" * 40)
+        print(f"Model: {args.model}")
+        print(f"Defense: {args.defense}")
+        print(f"Accuracy: {accuracy:.2%}")
+    else:
+        print(f"Failed to calculate accuracy for {args.model} with {args.defense}")
 
 if __name__ == "__main__":
     main() 
