@@ -56,7 +56,7 @@ def evaluate_model(model_name: str, defense_method: str = "no_defense"):
     audio_dir = "./openbookqa_audios"
     
     # Output file in current directory
-    output_file = f"{model_name}-openbookqa-utility-{defense_method}.json"
+    output_file = f"{model_name}-openbookqa-utility-{defense_method}-generate.json"
     
     # Process each audio sample
     for idx, item in enumerate(tqdm(dataset, desc=f"Evaluating {model_name}")):

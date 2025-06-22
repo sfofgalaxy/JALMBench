@@ -76,9 +76,8 @@ def parse_args():
 
 def calculate_accuracy_for_model(model_name: str, defense_method: str):
     """Calculate accuracy for a specific model and defense method"""
-    # Get the specific json file
-    answer_dir = f"./answer/{defense_method}"
-    filepath = os.path.join(answer_dir, f"{model_name}.json")
+    # Get the answer file from extract_answers.py
+    filepath = f"{model_name}-openbookqa-utility-{defense_method}-answer.json"
     
     if not os.path.exists(filepath):
         print(f"File not found: {filepath}")

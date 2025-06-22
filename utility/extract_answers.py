@@ -24,8 +24,8 @@ def extract_choice_regex(prediction: str) -> str:
     preds = preds.replace("，", " ").replace("。", " ").replace("<", " ").replace(">", " ").replace("*", " ").replace("\"", " ")
     preds = preds.replace(":", " ").replace("?", " ").replace("!", " ").replace("\\", " ").replace("|", " ").replace("'", " ")
     preds = preds.replace("`", " ").replace("~", " ").replace("^", " ").replace("[", " ").replace("]", " ").replace("{", " ").replace("}", " ")
-    preds = preds.replace("=", " ").replace("+", " ").replace("-", " ").replace("_", " ").replace("、", " ").replace("'", " ").replace("'", " ")
-    preds = preds.replace("：", " ").replace(""", " ").replace(""", " ").replace("；", " ")
+    preds = preds.replace("=", " ").replace("+", " ").replace("-", " ").replace("_", " ").replace("、", " ").replace("‘", " ").replace("’", " ")
+    preds = preds.replace("：", " ").replace("“", " ").replace("”", " ").replace("；", " ")
     preds = preds.split(" ")
     preds = [pred.upper() for pred in preds]
     
@@ -160,18 +160,19 @@ def extract_choice(client, question: str, prediction: str) -> str:
     
     return choice
 
-def process_predictions(json_file_path: str, defense_type: str):
+def process_predictions(model_name: str, defense_type: str):
     """Process predictions in JSON file and extract choices"""
     client = init_client()
     
+    # Input file from generate.py
+    input_file_path = f"{model_name}-openbookqa-utility-{defense_type}-generate.json"
+    
     # Read JSON file
-    with open(json_file_path, 'r', encoding='utf-8') as f:
+    with open(input_file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Create output directory and path
-    original_filename = os.path.basename(json_file_path)
-    os.makedirs(f"./answer/{defense_type}", exist_ok=True)
-    output_path = os.path.join(f"./answer/{defense_type}", original_filename)
+    # Output file with answer suffix
+    output_file_path = f"{model_name}-openbookqa-utility-{defense_type}-answer.json"
     
     # Process each prediction
     for item in data:
@@ -181,11 +182,11 @@ def process_predictions(json_file_path: str, defense_type: str):
         item["choice"] = choice
         
         # Save incrementally
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
-    print(f"Processed results saved to: {output_path}")
-    return output_path
+    print(f"Processed results saved to: {output_file_path}")
+    return output_file_path
 
 def parse_args():
     """Parse command line arguments"""
@@ -202,16 +203,14 @@ def main():
     # Parse command line arguments
     args = parse_args()
     
-    # Construct input file path
-    input_file = f"./results/{args.defense}/{args.model}.json"
-    
     # Check if input file exists
+    input_file = f"{args.model}-openbookqa-utility-{args.defense}-generate.json"
     if not os.path.exists(input_file):
         print(f"Input file not found: {input_file}")
         return
     
     try:
-        process_predictions(input_file, args.defense)
+        process_predictions(args.model, args.defense)
         print(f"Finished processing {args.model} with {args.defense}")
     except Exception as e:
         print(f"Error processing {args.model} with {args.defense}: {str(e)}")

@@ -1,4 +1,7 @@
 # Byte-compiled / optimized / DLL files
+*.json
+openbookqa_data/
+openbookqa_audios/
 temp/
 .DS_Store
 __pycache__/
