@@ -8,6 +8,8 @@ import importlib.util
 import soundfile as sf
 from huggingface_hub import login
 import dotenv
+import glob
+from typing import List, Dict, Any, Optional
 
 # List of allowed subset names for JALMBench
 data_subsets = [
@@ -47,10 +49,78 @@ def load_output_filter(filter_name):
         return module
     return None
 
+def load_data(data_path: str, 
+             language: Optional[str] = None, 
+             gender: Optional[str] = None, 
+             accent: Optional[str] = None) -> tuple[List[Dict[str, Any]], bool]:
+    """
+    Load data from either a dataset subset or a folder containing audio files.
+    
+    Args:
+        data_path: Path to the dataset or folder
+        language: Optional language filter
+        gender: Optional gender filter
+        accent: Optional accent filter
+        
+    Returns:
+        Tuple of (data list, is_folder flag)
+    """
+    is_folder = False
+    
+    # Check if input is a subset or folder
+    if data_path not in data_subsets:
+        if not os.path.isdir(data_path):
+            raise ValueError(f"'{data_path}' is neither a valid subset nor a directory. Choose from: {data_subsets} or provide a valid directory path")
+        is_folder = True
+    
+    if is_folder:
+        # Get all audio files in the folder
+        audio_files = []
+        for ext in ['mp3', 'wav']:
+            audio_files.extend(glob.glob(os.path.join(data_path, f"*.{ext}")))
+        
+        if not audio_files:
+            raise ValueError(f"No mp3 or wav files found in directory '{data_path}'")
+            
+        # Try to load data.json if it exists
+        data_json_path = os.path.join(data_path, "data.json")
+        original_texts = {}
+        if os.path.exists(data_json_path):
+            try:
+                with open(data_json_path, 'r', encoding='utf-8') as f:
+                    json_data = json.load(f)
+                    original_texts = {item['id']: item.get('original_text') for item in json_data}
+            except Exception as e:
+                print(f"Warning: Failed to load data.json: {e}")
+        
+        # Create data list
+        data = []
+        for audio_file in audio_files:
+            file_id = os.path.splitext(os.path.basename(audio_file))[0]
+            data.append({
+                'id': file_id,
+                'audio': audio_file,
+                'original_text': original_texts.get(file_id)
+            })
+    else:
+        # Load dataset from huggingface
+        ds = load_dataset("AnonymousUser000/JALMBench", data_path)
+        data = ds['train']
+        
+        # Apply filters for dataset
+        if language is not None:
+            data = [item for item in data if 'language' in item and item['language'] == language]
+        if gender is not None:
+            data = [item for item in data if 'gender' in item and item['gender'] == gender]
+        if accent is not None:
+            data = [item for item in data if 'accent' in item and item['accent'] == accent]
+    
+    return data, is_folder
+
 def parse_args():
     parser = argparse.ArgumentParser(description='JALMBench entry')
     parser.add_argument('--model', type=str, required=True, help='model name, e.g. qwen, diva')
-    parser.add_argument('--data', type=str, required=True, help='dataset subset name, e.g. AHarm, ADiv')
+    parser.add_argument('--data', type=str, required=True, help='dataset subset name (e.g. AHarm, ADiv) or folder path containing mp3, wav files')
     parser.add_argument('--modality', type=str, required=True, choices=['audio', 'text'], help='input modality: audio or text')
     parser.add_argument('--output_dir', type=str, default='.', help='output directory')
     parser.add_argument('--prompt', type=str, default=None, help='optional prompt')
@@ -64,27 +134,27 @@ def parse_args():
 
 def main():
     args = parse_args()
-    # Check if the specified subset is valid
-    if args.data not in data_subsets:
-        print(f"Error: '{args.data}' is not a valid subset. Choose from: {data_subsets}")
+    
+    try:
+        # Load data
+        data, is_folder = load_data(
+            args.data,
+            language=args.language,
+            gender=args.gender,
+            accent=args.accent
+        )
+    except ValueError as e:
+        print(f"Error: {e}")
         exit(1)
+    
     # Load model
     model = get_model(args.model.lower())
-    # Load dataset - args.data specifies the subset name, each subset only has 'train' split
-    ds = load_dataset("AnonymousUser000/JALMBench", args.data)
-    data = ds['train']
-    # Filter data by language, gender, accent if specified
-    if args.language is not None:
-        data = [item for item in data if 'language' in item and item['language'] == args.language]
-    if args.gender is not None:
-        data = [item for item in data if 'gender' in item and item['gender'] == args.gender]
-    if args.accent is not None:
-        data = [item for item in data if 'accent' in item and item['accent'] == args.accent]
     
-    # Output filename
+    # Output filename - use folder name if processing folder
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, f"{args.model}-{args.data}-{args.modality}.jsonl")
+    folder_name = os.path.basename(args.data.rstrip('/\\')) if is_folder else args.data
+    output_path = os.path.join(output_dir, f"{args.model}-{folder_name}-{args.modality}.jsonl")
     
     # Load defense if specified
     defense_prompt = None
@@ -103,7 +173,7 @@ def main():
                 if 'audio' not in item or item['audio'] is None:
                     continue
                 # If args.data is AdvWave, only process item with target model
-                if args.data.lower() == 'advwave' and item['target_model'] != model_mapping[args.model.lower()]:
+                if not is_folder and args.data.lower() == 'advwave' and item['target_model'] != model_mapping[args.model.lower()]:
                     continue
                 audio_data = item['audio']
                 # If audio_data is not a file path, save it as a temporary wav file
@@ -149,11 +219,11 @@ def main():
                 if not output_filter.is_safe(response):
                     response = "Content Filtered, Unsafe Response."
             
-            # Save only id, response, text, original_text
+            # Save only id, response, original_text
             out = {
                 'id': item['id'],
                 'response': response,
-                'original_text': item['original_text']
+                'original_text': item.get('original_text', None)
             }
             fout.write(json.dumps(out, ensure_ascii=False) + '\n')
 

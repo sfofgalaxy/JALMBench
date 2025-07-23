@@ -239,9 +239,26 @@ Get the ALM's Response with the above commands or the following Commands.
 ```shell
 python main.py --model qwen --data AHarm --modality audio
 ```
+
+You can also evaluate a folder containing audio files:
+```shell
+python main.py --model qwen --data /path/to/audio/folder --modality audio
+```
+The folder can contain mp3 or wav files.
+(OPTIONAL)If you want to include original text for evaluation, create a `data.json` file in the folder with the following format:
+```json
+[
+  {
+    "id": "audio_file_name, e.g., 1.mp3",
+    "original_text": "original harmful but no-attacking text of the audio (for example: how to make a bomb)"
+  }
+]
+```
+Note: The `id` should match the audio file name without extension.
+
 **Supported Arguments:**
 - `--model`: Specifies the model to use for generating responses. (e.g., `qwen`, `diva`).
-- `--data`: Selects the subset of the dataset. Replace `AHarm` with other subsets like `THarm` (text only), `PAP`, etc., depending on your evaluation needs.
+- `--data`: Selects the subset of the dataset or a folder path containing audio files. For dataset, replace `AHarm` with other subsets like `THarm` (text only), `PAP`, etc., depending on your evaluation needs.
 - `--modality`: Use `audio` for spoken modality input, `text` for text modality input. This will generate the output and save it to a file named `qwen-aharm-audio.jsonl` in the root folder.
 - `--defense`: Defense methods used, default: None (i.e. no defense). (e.g., `AdaShield`, `LLaMAGuard`)
 - `--language`: (Optional) Filter by language, e.g. `en`.
