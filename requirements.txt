@@ -285,6 +285,7 @@ tqdm==4.67.1
 traitlets==5.14.3
 transformers==4.45.0
 triton==3.1.0
+TTS=0.22
 typeguard==4.4.1
 types-python-dateutil==2.9.0.20241206
 typing_extensions==4.12.2

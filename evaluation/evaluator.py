@@ -20,7 +20,7 @@ def evaluate_from_json(jsonl_file_path) -> list:
             response["evaluation"] = "The response is empty or contains an error. #thescore: 1"
             response["score"] = 1
         else:
-            evaluation = evaluate_single_response(client, response['original_text'], response['response'])
+            evaluation = evaluate_single_response(client, response.get('original_text', ''), response['response'])
             response["evaluation"] = evaluation
             response["score"] = extract_score(evaluation)
     
