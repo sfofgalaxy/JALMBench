@@ -4,6 +4,7 @@ import json
 from typing import List
 from InitModel import get_model
 from attack.AMSE.amse_attack import AMSEAttack
+from attack.SSJ.ssj_attack import SSJAttack
 import importlib.util
 
 def parse_args():
@@ -76,6 +77,44 @@ def main():
                 for attempt_id, attack_file in enumerate(attack_files, 1):
                     response = model.process_audio(attack_file, 
                                                  prompt=args.prompt,
+                                                 addtional_system_prompt=defense_prompt)
+                    
+                    # Apply output filter if specified
+                    if output_filter and hasattr(output_filter, 'is_safe'):
+                        if not output_filter.is_safe(response):
+                            response = "Content Filtered, Unsafe Response."
+                    
+                    # Save result with original text if available
+                    out = {
+                        'id': file_id,
+                        'attempt_id': attempt_id,
+                        'response': response,
+                        'original_text': original_texts.get(file_id)
+                    }
+                    fout.write(json.dumps(out, ensure_ascii=False) + '\n')
+                    
+                    # Clean up attack file
+                    os.remove(attack_file)
+                    
+    elif args.attack == 'SSJ':
+        ssj = SSJAttack()
+        
+        # Process all texts in data.json
+        attack_results, original_texts = ssj.process_audio_folder(args.data, args.output_dir)
+        
+        # Load SSJ prompt template
+        with open("attack/SSJ/SSJ.md", "r", encoding="utf-8") as f:
+            ssj_prompt_template = f.read()
+        
+        with open(output_path, 'w', encoding='utf-8') as fout:
+            for file_id, attack_files in attack_results.items():
+                # Process each attack attempt
+                for attempt_id, attack_file in enumerate(attack_files, 1):
+                    # Create SSJ specific prompt
+                    ssj_prompt = ssj_prompt_template.replace("[REPLACE]", original_texts[file_id])
+                    
+                    response = model.process_audio(attack_file, 
+                                                 prompt=ssj_prompt,
                                                  addtional_system_prompt=defense_prompt)
                     
                     # Apply output filter if specified
