@@ -5,6 +5,7 @@ from typing import List
 from InitModel import get_model
 from attack.AMSE.amse_attack import AMSEAttack
 from attack.SSJ.ssj_attack import SSJAttack
+from attack.AdvWave_B.advwave_attack import AdvWaveAttack
 import importlib.util
 
 def parse_args():
@@ -17,7 +18,7 @@ def parse_args():
                        choices=['JailbreakBench', 'FigStep', 'AdaShield', 'LLaMAGuard', 'Azure'],
                        help='defense method to use')
     parser.add_argument('--attack', type=str, required=True,
-                       choices=['AMSE', 'SSJ', 'BoN', 'AdvWave-B'],
+                       choices=['AMSE', 'SSJ', 'BoN', 'AdvWave'],
                        help='attack method to use')
     return parser.parse_args()
 
@@ -115,6 +116,41 @@ def main():
                     
                     response = model.process_audio(attack_file, 
                                                  prompt=ssj_prompt,
+                                                 addtional_system_prompt=defense_prompt)
+                    
+                    # Apply output filter if specified
+                    if output_filter and hasattr(output_filter, 'is_safe'):
+                        if not output_filter.is_safe(response):
+                            response = "Content Filtered, Unsafe Response."
+                    
+                    # Save result with original text if available
+                    out = {
+                        'id': file_id,
+                        'attempt_id': attempt_id,
+                        'response': response,
+                        'original_text': original_texts.get(file_id)
+                    }
+                    fout.write(json.dumps(out, ensure_ascii=False) + '\n')
+                    
+                    # Clean up attack file
+                    os.remove(attack_file)
+                    
+    elif args.attack == 'AdvWave':
+        advwave = AdvWaveAttack(max_rounds=30)
+        
+        # Process all items in data.json
+        attack_results, original_texts = advwave.process_audio_folder(
+            input_dir=args.data,
+            output_dir=args.output_dir,
+            model=model
+        )
+        
+        with open(output_path, 'w', encoding='utf-8') as fout:
+            for file_id, attack_files in attack_results.items():
+                # Process each attack attempt
+                for attempt_id, attack_file in enumerate(attack_files, 1):
+                    response = model.process_audio(attack_file, 
+                                                 prompt=args.prompt,
                                                  addtional_system_prompt=defense_prompt)
                     
                     # Apply output filter if specified
