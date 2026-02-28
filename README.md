@@ -369,7 +369,7 @@ If you use the JALMBench in your research, please cite the following paper:
 author={Zifan Peng and Yule Liu and Zhen Sun and Mingchen Li and Zeren Luo and Jingyi Zheng and Wenhan Dong and Xinlei He and Xuechao Wang and Yingjie Xue and Shengmin Xu and Xinyi Huang},
 title  = {JALMBench: Benchmarking Jailbreak Vulnerabilities in Audio Language Models},
 year = {2026},
-booktitle = {The Fourteen International Conference on Learning Representations (ICLR)}
+booktitle = {The International Conference on Learning Representations (ICLR)}
 }
 ```
 
